@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 
 (async () => {
-    const ks = fs.readFileSync('config/secret.json');
+    const ks = fs.readFileSync('secrets/secret.json');
     const config = JSON.parse(fs.readFileSync('config/config.json'));
 
     const ttl = Math.floor(ms(config.ttl) / 1000);

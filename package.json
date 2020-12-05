@@ -12,5 +12,9 @@
     "rsa"
   ],
   "author": "Alexander Rozhdestvensky",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-jose": "^2.0.0"
+  }
 }

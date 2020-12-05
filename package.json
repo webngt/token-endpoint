@@ -1,0 +1,16 @@
+{
+  "name": "token-endpoint",
+  "version": "0.0.1",
+  "description": "issue RSA signed jwt tokens",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "jwt",
+    "jwt-rsa",
+    "rsa"
+  ],
+  "author": "Alexander Rozhdestvensky",
+  "license": "MIT"
+}

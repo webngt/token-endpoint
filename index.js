@@ -5,6 +5,7 @@ const fs = require('fs');
 const ms = require('ms');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const health = require('@cloudnative/health-connect');
 let healthcheck = new health.HealthChecker();
@@ -20,6 +21,11 @@ let shutdownCheck = new health.ShutdownCheck("shutdownCheck", shutdownPromise);
 healthcheck.registerShutdownCheck(shutdownCheck);
 app.use('/live', health.LivenessEndpoint(healthcheck));
 app.use('/ready', health.ReadinessEndpoint(healthcheck));
+
+process.on('unhandledRejection', error => {
+    console.error('unhandledRejection', error);
+    process.exit(1);
+  });
 
 (async () => {
     const ks = JSON.parse(fs.readFileSync('secrets/secret.json'));
@@ -43,15 +49,20 @@ app.use('/ready', health.ReadinessEndpoint(healthcheck));
             preferred_username: 'test' 
         };
 
+        const uname = crypto.publicEncrypt(key.toPEM(false), Buffer.from(creds.preferred_username));
+
+
         const payload = JSON.stringify({ 
-            sub: creds.preferred_username,
+            sub: uname.toString('base64'),
             exp: now + ttl,
             iat: now,
             iss: config.checklistIss
         });
-        const token = await jose.JWS.createSign(opt, key)
+        const token = await jose.JWS.createSign(opt, key)        
         .update(payload)
         .final();
+
+        
         res.set('Content-Type', 'text/plain');
         res.send(token);
     });

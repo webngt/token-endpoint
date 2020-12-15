@@ -1,3 +1,3 @@
-# JWT token endpoint
+# JWE token endpoint
 
-Simple JWT token endpoint
+Simple JWE token endpoint

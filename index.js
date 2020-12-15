@@ -28,14 +28,13 @@ process.on('unhandledRejection', error => {
   });
 
 (async () => {
-    const ks = JSON.parse(fs.readFileSync('secrets/secret.json'));
+    const ks = JSON.parse(fs.readFileSync('secrets/keys.json'));
     const config = JSON.parse(fs.readFileSync('config/config.json'));
 
     const ttl = Math.floor(ms(config.ttl) / 1000);
 
     const keyStore = await jose.JWK.asKeyStore(JSON.stringify(ks));
-    const [key] = keyStore.all({ use: 'sig' });
-    const opt = { compact: true, jwk: key, fields: { typ: 'jwt' } };
+    const [enc_key] = keyStore.all({ use: 'enc' });
 
     app.use(cookieParser());
 
@@ -49,22 +48,18 @@ process.on('unhandledRejection', error => {
             preferred_username: 'test' 
         };
 
-        const uname = crypto.publicEncrypt(key.toPEM(false), Buffer.from(creds.preferred_username));
-
-
         const payload = JSON.stringify({ 
-            sub: uname.toString('base64'),
+            sub: creds.preferred_username,
             exp: now + ttl,
-            iat: now,
-            iss: config.checklistIss
+            iat: now
         });
-        const token = await jose.JWS.createSign(opt, key)        
+
+        const enc_token = await jose.JWE.createEncrypt({ format: 'compact', zip: true }, enc_key)
         .update(payload)
         .final();
 
-        
         res.set('Content-Type', 'text/plain');
-        res.send(token);
+        res.send(enc_token);
     });
     app.listen(3000);    
 })();

@@ -40,7 +40,7 @@ process.on('unhandledRejection', error => {
 
     app.get('/tokens', async function (req, res) {
         const now = Math.floor(Date.now() / 1000);
-        
+        const key = req.query.key;
         // creds if defined from the cookie
         const creds = req.cookies.tokenId !== undefined ? jwt.decode(req.cookies.tokenId, {complete: true}).payload : {
             sub: 'test',
@@ -51,7 +51,8 @@ process.on('unhandledRejection', error => {
         const payload = JSON.stringify({ 
             sub: creds.preferred_username,
             exp: now + ttl,
-            iat: now
+            iat: now,
+            key
         });
 
         const enc_token = await jose.JWE.createEncrypt({ format: 'compact', zip: true }, enc_key)
